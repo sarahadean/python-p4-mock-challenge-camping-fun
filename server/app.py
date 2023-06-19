@@ -16,12 +16,30 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
 migrate = Migrate(app, db)
+api = Api(app)
 
 db.init_app(app)
 
 @app.route('/')
 def home():
     return ''
+
+class Campers(Resource):
+    def get(self):
+        all_campers = [camper.to_dict(only=('id', 'name', 'age')) for camper in Camper.query.all()]
+        return make_response(all_campers, 200)
+    
+api.add_resource(Campers, '/campers')
+
+class CamperByID(Resource):
+    def get(self, id):
+        single_camper = Camper.query.filter_by(id=id).first().to_dict(only=())
+        return make_response(single_camper, 200)
+    
+    
+
+
+api.add_resource(CamperByID, '/campers/<int:id>')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
