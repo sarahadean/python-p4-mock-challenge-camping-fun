@@ -17,8 +17,6 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
 
-
-
 class Activity(db.Model, SerializerMixin):
     __tablename__ = 'activities'
 
@@ -34,73 +32,17 @@ class Activity(db.Model, SerializerMixin):
 
     camper_list = association_proxy('activity_signups', 'camper')
 
+    serialize_only = ("id", "name", "difficulty")
+
     def __repr__(self):
         return f'<Activity {self.id}: {self.name}>'
-
-'''
-In CAMPER WITH -CAMPER_SIGNUPS.ACTIVITY
-Serialize_rules: '-camper_signups.activity', '-camper_signups.camper', '-activity_list.camper_list':
-"age": 18,
-    "camper_signups": [
-        {
-            "activity_id": 12,
-            "camper_id": 1,
-            "id": 88,
-            "time": 2
-        },
-    ],
-    "id": 1,
-    "name": "Tara Reese"
-
-WITHOUT -CAMPER_SIGNUPS.ACTIVITY
-"age": 18,
-    "camper_signups": [
-        {
-            "activity": {
-                "difficulty": 5,
-                "id": 12,
-                "name": "Production film themselves seat indicate environmental daughter write."
-            },
-            "activity_id": 12,
-            "camper_id": 1,
-            "id": 88,
-            "time": 2
-        },
-        {
-            "activity": {
-                "difficulty": 4,
-                "id": 13,
-                "name": "Participant mother part during approach relationship."
-            },
-            "activity_id": 13,
-            "camper_id": 1,
-            "id": 279,
-            "time": 9
-        },
-        {
-            "activity": {
-                "difficulty": 5,
-                "id": 5,
-                "name": "Exactly fire I yard international floor."
-            },
-            "activity_id": 5,
-            "camper_id": 1,
-            "id": 474,
-            "time": 21
-        }
-    ],
-    "id": 1,
-    "name": "Tara Reese"
-}
-'''
-
 
 
 
 class Camper(db.Model, SerializerMixin):
     __tablename__ = 'campers'
 
-    serialize_rules = ('-created_at', '-updated_at')
+    serialize_rules = ('-created_at', '-updated_at', '-camper_signups.camper')
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -112,7 +54,7 @@ class Camper(db.Model, SerializerMixin):
 
     activity_list = association_proxy('camper_signups', 'activity')
 
-    
+
 
     @validates('name')
     def validates_name(self, key, name):
